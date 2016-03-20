@@ -72,6 +72,24 @@ for ($i = 0; $i < $argc;$i++)
     $i++;
     continue;
   }  
+  if ($argv[$i] === '-sn')
+  {
+    $serverName = $argv[$i + 1];
+    $i++;
+    continue;
+  }  
+  if ($argv[$i] === '-sd')
+  {
+    $serverDesc = $argv[$i + 1];
+    $i++;
+    continue;
+  }  
+  if ($argv[$i] === '-IP')
+  {
+    $IPaddress = $argv[$i + 1];
+    $i++;
+    continue;
+  }    
   if ($argv[$i] === '-c')
   {
     $command = $argv[$i + 1];
@@ -119,7 +137,7 @@ switch ($command)
    break;
   case 'validatePW':
    $login = new loginDB("logindb.ini");
-   if ($login->validateUser($username,$password))
+   if ($login->validatePassword($username,$password))
    {
       echo "password validated!!!".PHP_EOL;
    }
@@ -148,6 +166,7 @@ switch ($command)
   //User
   case 'addServer':
   $login = new loginDB("logindb.ini");
+  $login->addServer($username,$password,$serverName,$IPaddress,$serverDesc,$cArgs[0]);
   break;
   case 'viewUsers':
   $login = new loginDB("logindb.ini");
@@ -163,6 +182,7 @@ switch ($command)
   case 'validateAdmin':
   $login = new loginDB("logindb.ini");
   $login->validateAdmin($username,$cArgs[0]);
+  break;
 }
 
 ?>

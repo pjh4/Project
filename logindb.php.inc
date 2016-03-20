@@ -38,9 +38,22 @@ class loginDB
         return false;
    }
    
+   public function checkIfServerExists($serverName)
+   {
+	$serverName = $this->db->real_escape_string($serverName);
+	$query = "select serverName from server where serverName = '$serverName';";
+        $results = $this->db->query($query);
+	$row = $results->fetch_assoc();
+	if ($row['serverName'] === $serverName)
+        {
+		return true;
+	}
+        return false;
+   }   
+   
    public function updateUserPassword($username,$oldPassword,$newPassword)
    {
-   	if (!$this->validateUser($username,$oldPassword))
+   	if (!$this->validatePassword($username,$oldPassword))
         {
 		echo "cannot update Password, validation failed".PHP_EOL;
 		$response = array(
@@ -60,7 +73,7 @@ class loginDB
 	return true;
    }
 
-   public function validateUser($username,$password)
+   public function validatePassword($username,$password)
    {
 	$username = $this->db->real_escape_string($username);
 	$password = $this->db->real_escape_string($this->saltPassword($password));
@@ -73,6 +86,7 @@ class loginDB
 	}
 	return false;
    }
+   
    public function validateAdmin($username)
    {
 	$username = $this->db->real_escape_string($username);
@@ -102,18 +116,41 @@ class loginDB
 		echo "cannot create new user $newUser, this user already exists!".PHP_EOL;
 		return;
 	}
-	$username = $this->db->real_escape_string($username);
-	$password = $this->db->real_escape_string($this->saltPassword($password));
+	//$username = $this->db->real_escape_string($username);
+	$newPassword = $this->db->real_escape_string($this->saltPassword($newPassword));
 	$loginType = $this->db->real_escape_string($loginType);
-	$query = "insert into login (username,password,loginType) values('$newUser','$this->saltPassword$password','$loginType');";
-	$results = $this->db->query($query);
-	if ($this->db->errno > 0)
+	//validate password
+   	if (!$this->validatePassword($username,$password))
         {
-		echo "DB error: ".$this->db->error.PHP_EOL;
-		return;
-        }
+	    echo "Error: Password incorrect".PHP_EOL;
+	    $response = array(
+		    "message"=>"Password incorrect",
+		    "result"=>"false");
+	    return $response;	
+	}
+	//validate if admin
+	else if (!$this->validateAdmin($username))
+	{
+	  echo "Error: User ".$username." is not an admin!".PHP_EOL;
+	  $response = array(
+		  "message"=>"Error: User ".$username." is not an admin!",
+		  "result"=>"false");
+	  return $response;		      
+	}
+	//runs command
+	else
+	{
+	  $query = "insert into login (username,password,loginType) values('$newUser','$this->saltPassword$newPassword','$loginType');";
+	  $results = $this->db->query($query);
+	  if ($this->db->errno > 0)
+	  {
+		  echo "DB error: ".$this->db->error.PHP_EOL;
+		  return;
+	  }
+	}
         echo "User $newUser has been added.".PHP_EOL;
    }
+   
    public function deleteUser($username, $password, $targetUser)
    {
 	if ($this->checkIfUserExists($targetUser) == false)
@@ -122,8 +159,8 @@ class loginDB
 		return;
 	}
 	$targetUser = $this->db->real_escape_string($targetUser);	
-	
-   	if (!$this->validateUser($username,$password))
+	//validate password
+   	if (!$this->validatePassword($username,$password))
         {
 	    echo "Error: Password incorrect".PHP_EOL;
 	    $response = array(
@@ -157,11 +194,9 @@ class loginDB
 
    public function modifyGroup($username, $password, $targetUser, $loginType)
    {
-	$username = $this->db->real_escape_string($username);
-	$password = $this->db->real_escape_string($this->saltPassword($password));
 	$loginType = $this->db->real_escape_string($loginType);	
 	//validate password
-   	if (!$this->validateUser($username,$password))
+   	if (!$this->validatePassword($username,$password))
         {
 	    echo "Error: Password incorrect".PHP_EOL;
 	    $response = array(
@@ -186,6 +221,7 @@ class loginDB
 	  echo "User ".$targetUser."'s login type changed to: ".$loginType.PHP_EOL;
 	}
    }
+   
    public function viewUsers()
    {
 	$query = "SELECT username, loginType FROM login;";
@@ -202,9 +238,11 @@ class loginDB
 	    echo "0 results";    
 	}
    }
+   
    public function modifyPerm($username,$password,$targetGroup,$modification)
    {
-   	if (!$this->validateUser($username,$password))
+	//validate password
+   	if (!$this->validatePassword($username,$password))
         {
 	    echo "Error: Password incorrect".PHP_EOL;
 	    $response = array(
@@ -229,8 +267,45 @@ class loginDB
 	  echo "Group ".$targetGroup."'s permissions changed to: ".$modification.PHP_EOL;
 	}   
    }
-   public function addServer($serverName)
+   public function addServer($username,$password,$serverName,$IPaddress,$serverDesc)
    {
+	//check if server name exists
+	if ($this->checkIfServerExists($serverName) == true)
+        {
+		echo "Cannot add new server $serverName, this server name already exists!".PHP_EOL;
+		return;
+	}
+	//validate password
+   	if (!$this->validatePassword($username,$password))
+        {
+	    echo "Error: Password incorrect".PHP_EOL;
+	    $response = array(
+		    "message"=>"Password incorrect",
+		    "result"=>"false");
+	    return $response;	
+	}
+	//validate if admin
+	else if (!$this->validateAdmin($username))
+	{
+	  echo "Error: User ".$username." is not an admin!".PHP_EOL;
+	  $response = array(
+		  "message"=>"Error: User ".$username." is not an admin!",
+		  "result"=>"false");
+	  return $response;		      
+	}
+	//runs command
+	else
+	{
+	  $query = "insert into server (serverID,serverName,IPaddress,serverDesc) 
+	    values(' ','$serverName','$IPaddress','$serverDesc');";
+	  $results = $this->db->query($query);
+	  if ($this->db->errno > 0)
+	  {
+		  echo "DB error: ".$this->db->error.PHP_EOL;
+		  return;
+	  }
+	}
+        echo "Server $serverName has been added.".PHP_EOL;   
    }   
    public function searchServers($serverName)
    {
