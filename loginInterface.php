@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 
-require_once("classdb.php.inc");
+//require_once("classdb.php.inc");
 require_once("logindb.php.inc");
 
 function print_help()
@@ -170,18 +170,16 @@ switch ($command)
   break;
   case 'viewUsers':
   $login = new loginDB("logindb.ini");
-  $login->viewUsers($cArgs[0]);
+  $login->viewUsers($username,$password,$cArgs[0]);
   break;
   //Guest
+  case 'searchServers':
+  $login = new loginDB("logindb.ini");
+  $login->searchServers($serverName,$cArgs[0]);
+  break;
   case 'viewServers':
   $login = new loginDB("logindb.ini");
-  break;
-  case 'viewServerInfo':
-  $login = new loginDB("logindb.ini");
-  break;
-  case 'validateAdmin':
-  $login = new loginDB("logindb.ini");
-  $login->validateAdmin($username,$cArgs[0]);
+  $login->viewServers($cArgs[0]);
   break;
 }
 

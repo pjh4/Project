@@ -4,7 +4,6 @@ class loginDB
 {
    private $db;
    private $ini;
-//   private $sql;
    public function __construct($iniFile)
    {
 	$this->ini = parse_ini_file($iniFile,true);
@@ -38,13 +37,13 @@ class loginDB
         return false;
    }
    
-   public function checkIfServerExists($serverName)
+   public function checkIfServerExists($IPaddress)
    {
-	$serverName = $this->db->real_escape_string($serverName);
-	$query = "select serverName from server where serverName = '$serverName';";
+	$IPaddress = $this->db->real_escape_string($IPaddress);
+	$query = "select IPaddress from server where IPaddress = '$IPaddress';";
         $results = $this->db->query($query);
 	$row = $results->fetch_assoc();
-	if ($row['serverName'] === $serverName)
+	if ($row['IPaddress'] === $IPaddress)
         {
 		return true;
 	}
@@ -102,7 +101,23 @@ class loginDB
 	  return false;
 	}
    }   
-
+   
+   public function validateUser($username)
+   {
+	$username = $this->db->real_escape_string($username);
+	$query = "select loginType from login where username = '$username';";
+        $results = $this->db->query($query);
+	$row = $results->fetch_assoc();
+	if ($row['loginType'] === 'User')
+	{
+		echo "true".PHP_EOL;
+		return true;
+	}
+	else
+	{
+	  return false;
+	}
+   }   
    private function saltPassword($password)
    {
 	$salt = $this->ini['loginDB']['salt'];
@@ -111,12 +126,41 @@ class loginDB
 
    public function addNewUser($username, $password, $newUser, $newPassword, $loginType)
    {
+	if (!isset($username))
+	{
+	  echo "Error: No username specified".PHP_EOL;
+	  echo "Usage: loginInterface.php -u <username> -p <password> -nu <new user> -np <new password> -l <group> -c addNewUser".PHP_EOL;
+	  exit(0);
+	}
+	if (!isset($password))
+	{
+	  echo "Error: No password specified".PHP_EOL;
+	  echo "Usage: loginInterface.php -u <username> -p <password> -nu <new user> -np <new password> -l <group> -c addNewUser".PHP_EOL;
+	  exit(0);
+	}
+	if (!isset($newUser))
+	{
+	  echo "Error: No new user specified".PHP_EOL;
+	  echo "Usage: loginInterface.php -u <username> -p <password> -nu <new user> -np <new password> -l <group> -c addNewUser".PHP_EOL;
+	  exit(0);
+	}    
+	if (!isset($newPassword))
+	{
+	  echo "Error: No new password specified".PHP_EOL;
+	  echo "Usage: loginInterface.php -u <username> -p <password> -nu <new user> -np <new password> -l <group> -c addNewUser".PHP_EOL;
+	  exit(0);
+	}    
+	if (!isset($loginType))
+	{
+	  echo "Error: No group specified".PHP_EOL;
+	  echo "Usage: loginInterface.php -u <username> -p <password> -nu <new user> -np <new password> -l <group> -c addNewUser".PHP_EOL;
+	  exit(0);
+	}    	
 	if ($this->checkIfUserExists($newUser) == true)
         {
 		echo "cannot create new user $newUser, this user already exists!".PHP_EOL;
 		return;
 	}
-	//$username = $this->db->real_escape_string($username);
 	$newPassword = $this->db->real_escape_string($this->saltPassword($newPassword));
 	$loginType = $this->db->real_escape_string($loginType);
 	//validate password
@@ -128,12 +172,12 @@ class loginDB
 		    "result"=>"false");
 	    return $response;	
 	}
-	//validate if admin
-	else if (!$this->validateAdmin($username))
+	//validate if admin or user
+	else if (!$this->validateAdmin($username) & !$this->validateUser($username))
 	{
-	  echo "Error: User ".$username." is not an admin!".PHP_EOL;
+	  echo "Error: User ".$username." does not have access!".PHP_EOL;
 	  $response = array(
-		  "message"=>"Error: User ".$username." is not an admin!",
+		  "message"=>"Error: User ".$username." does not have access!",
 		  "result"=>"false");
 	  return $response;		      
 	}
@@ -153,6 +197,24 @@ class loginDB
    
    public function deleteUser($username, $password, $targetUser)
    {
+	if (!isset($username))
+	{
+	  echo "Error: No username specified".PHP_EOL;
+	  echo "Usage: loginInterface.php -u <username> -p <password> -tu <target user> -c deleteUser".PHP_EOL;
+	  exit(0);
+	}
+	if (!isset($password))
+	{
+	  echo "Error: No password specified".PHP_EOL;
+	  echo "Usage: loginInterface.php -u <username> -p <password> -tu <target user> -c deleteUser".PHP_EOL;
+	  exit(0);
+	}
+	if (!isset($targetUser))
+	{
+	  echo "Error: No target user specified".PHP_EOL;
+	  echo "Usage: loginInterface.php -u <username> -p <password> -tu <target user> -c deleteUser".PHP_EOL;
+	  exit(0);
+	}   
 	if ($this->checkIfUserExists($targetUser) == false)
         {
 		echo "cannot delete user $targetUser, this user doesn't exists!".PHP_EOL;
@@ -194,6 +256,30 @@ class loginDB
 
    public function modifyGroup($username, $password, $targetUser, $loginType)
    {
+	if (!isset($username))
+	{
+	  echo "Error: No username specified".PHP_EOL;
+	  echo "Usage: loginInterface.php -u <username> -p <password> -tu <target user> -l <group> -c loginType".PHP_EOL;
+	  exit(0);
+	}
+	if (!isset($password))
+	{
+	  echo "Error: No password specified".PHP_EOL;
+	  echo "Usage: loginInterface.php -u <username> -p <password> -tu <target user> -l <group> -c loginType".PHP_EOL;
+	  exit(0);
+	}
+	if (!isset($targetUser))
+	{
+	  echo "Error: No target user specified".PHP_EOL;
+	  echo "Usage: loginInterface.php -u <username> -p <password> -tu <target user> -l <group> -c loginType".PHP_EOL;
+	  exit(0);
+	}
+	if (!isset($loginType))
+	{
+	  echo "Error: No group specified".PHP_EOL;
+	  echo "Usage: loginInterface.php -u <username> -p <password> -tu <target user> -l <group> -c loginType".PHP_EOL;
+	  exit(0);
+	}		
 	$loginType = $this->db->real_escape_string($loginType);	
 	//validate password
    	if (!$this->validatePassword($username,$password))
@@ -222,25 +308,83 @@ class loginDB
 	}
    }
    
-   public function viewUsers()
+   public function viewUsers($username,$password)
    {
+	if (!isset($username))
+	{
+	  echo "Error: No username specified".PHP_EOL;
+	  echo "Usage: loginInterface.php -u <username> -p <password> -c viewUsers".PHP_EOL;
+	  exit(0);
+	}
+	if (!isset($password))
+	{
+	  echo "Error: No password specified".PHP_EOL;
+	  echo "Usage: loginInterface.php -u <username> -p <password> -c viewUsers".PHP_EOL;
+	  exit(0);
+	}
 	$query = "SELECT username, loginType FROM login;";
 	$result = $this->db->query($query);
-	if ($result->num_rows > 0) 
+	//validate password
+   	if (!$this->validatePassword($username,$password))
+        {
+	    echo "Error: Password incorrect".PHP_EOL;
+	    $response = array(
+		    "message"=>"Password incorrect",
+		    "result"=>"false");
+	    return $response;	
+	}
+	//validate if admin or user
+	else if (!$this->validateAdmin($username) & !$this->validateUser($username))
 	{
-	    while($row = $result->fetch_assoc()) 
-	    {
-		echo " - Username: " . $row["username"]. " - Group: " . $row["loginType"].PHP_EOL;
-	    }
-	} 
-	else 
+	  echo "Error: User ".$username." does not have access!".PHP_EOL;
+	  $response = array(
+		  "message"=>"Error: User ".$username." does not have access!",
+		  "result"=>"false");
+	  return $response;		      
+	}
+	//runs command
+	else
 	{
-	    echo "0 results";    
+	  if ($result->num_rows > 0) 
+	  {
+	      while($row = $result->fetch_assoc()) 
+	      {
+		  echo " - Username: " . $row["username"]. " - Group: " . $row["loginType"].PHP_EOL;
+	      }
+	  } 
+	  else 
+	  {
+	      echo "0 results";    
+	  }
 	}
    }
    
    public function modifyPerm($username,$password,$targetGroup,$modification)
    {
+	if (!isset($username))
+	{
+	  echo "Error: No username specified".PHP_EOL;
+	  echo "Usage: loginInterface.php -u <username> -p <password> -tg <target group> -m <modification> -c modifyPerm".PHP_EOL;
+	  exit(0);
+	}
+	if (!isset($password))
+	{
+	  echo "Error: No password specified".PHP_EOL;
+	  echo "Usage: loginInterface.php -u <username> -p <password> -tg <target group> -m <modification> -c modifyPerm".PHP_EOL;
+	  exit(0);
+	}
+	if (!isset($targetGroup))
+	{
+	  echo "Error: No target group specified".PHP_EOL;
+	  echo "Usage: loginInterface.php -u <username> -p <password> -tg <target group> -m <modification> -c modifyPerm".PHP_EOL;
+	  exit(0);
+	}
+	if (!isset($modification))
+	{
+	  echo "Error: No modifications specified".PHP_EOL;
+	  echo "Usage: loginInterface.php -u <username> -p <password> -tg <target group> -m <modification> -c modifyPerm".PHP_EOL;
+	  exit(0);
+	}	
 	//validate password
    	if (!$this->validatePassword($username,$password))
         {
@@ -269,10 +413,40 @@ class loginDB
    }
    public function addServer($username,$password,$serverName,$IPaddress,$serverDesc)
    {
-	//check if server name exists
+	if (!isset($username))
+	{
+	  echo "Error: No username specified".PHP_EOL;
+	  echo "Usage: loginInterface.php -u <username> -p <password> -sn <server name> -IP <IP Address> -sd <server description> -c addServer".PHP_EOL;
+	  exit(0);
+	}
+	if (!isset($password))
+	{
+	  echo "Error: No password specified".PHP_EOL;
+	  echo "Usage: loginInterface.php -u <username> -p <password> -sn <server name> -IP <IP Address> -sd <server description> -c addServer".PHP_EOL;
+	  exit(0);
+	}
+	if (!isset($serverName))
+	{
+	  echo "Error: No server name specified".PHP_EOL;
+	  echo "Usage: loginInterface.php -u <username> -p <password> -sn <server name> -IP <IP Address> -sd <server description> -c addServer".PHP_EOL;
+	  exit(0);
+	}
+	if (!isset($IPaddress))
+	{
+	  echo "Error: No IP Address specified".PHP_EOL;
+	  echo "Usage: loginInterface.php -u <username> -p <password> -sn <server name> -IP <IP Address> -sd <server description> -c addServer".PHP_EOL;
+	  exit(0);
+	}  
+	if (!isset($serverDesc))
+	{
+	  echo "Error: No server description specified".PHP_EOL;
+	  echo "Usage: loginInterface.php -u <username> -p <password> -sn <server name> -IP <IP Address> -sd <server description> -c addServer".PHP_EOL;
+	  exit(0);
+	}  	
+	//check if server address exists
 	if ($this->checkIfServerExists($serverName) == true)
         {
-		echo "Cannot add new server $serverName, this server name already exists!".PHP_EOL;
+		echo "Cannot add new server $serverName, this IP Address $IPaddress is already in use!".PHP_EOL;
 		return;
 	}
 	//validate password
@@ -309,10 +483,43 @@ class loginDB
    }   
    public function searchServers($serverName)
    {
+	if (!isset($serverName))
+	{
+	  echo "Error: No server name specified".PHP_EOL;
+	  echo "Usage: loginInterface.php -sn <server name> -c searchServers".PHP_EOL;
+	  exit(0);
+	}   
+	$serverName = $this->db->real_escape_string($serverName);	   
+	$query = "SELECT * FROM server where serverName = '$serverName';";
+	$result = $this->db->query($query);
+	if ($result->num_rows > 0) 
+	{
+	    while($row = $result->fetch_assoc()) 
+	    {
+		echo " - Name: " . $row["serverName"]. " - IP Address: " . $row["IPaddress"]. " - Info: " . $row["serverDesc"].PHP_EOL;
+	    }
+	} 
+	else 
+	{
+	    echo "0 results".PHP_EOL;    
+	}   
    }
-   public function viewServerInfo($serverName)
+   public function viewServers()
    {
-   }  
+	$query = "SELECT * FROM server;";
+	$result = $this->db->query($query);
+	if ($result->num_rows > 0) 
+	{
+	    while($row = $result->fetch_assoc()) 
+	    {
+		echo " - Name: " . $row["serverName"]. " - IP Address: " . $row["IPaddress"]. " - Info: " . $row["serverDesc"].PHP_EOL;
+	    }
+	} 
+	else 
+	{
+	    echo "0 results";    
+	}   
+   }
 }
 
 ?>
