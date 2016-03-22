@@ -40,4 +40,7 @@ php loginInterface.php -c viewServers
 # Instructions
 1) Run permissions.sql to setup the database named "permissions" with the tables "groups","login", and "server". This will create the "user" account with the password "password"
 
-2) Commands can be run using the format: php loginInterface.php -u <username> -p <password> -c <command>
+2) Commands can be run using the format: 
+```php
+php loginInterface.php -u <username> -p <password> -c <command>
+```
