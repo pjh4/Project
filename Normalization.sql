@@ -23,8 +23,9 @@ DROP TABLE IF EXISTS `groups`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `groups` (
+  `username` varchar(50) DEFAULT NULL,
   `loginType` enum('Admin','User','Guest') DEFAULT NULL,
-  `permissions` varchar(255) DEFAULT NULL
+  `permissionLevel` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -34,7 +35,7 @@ CREATE TABLE `groups` (
 
 LOCK TABLES `groups` WRITE;
 /*!40000 ALTER TABLE `groups` DISABLE KEYS */;
-INSERT INTO `groups` VALUES ('Admin','*'),('User','Kick, Ban, Mute, Gamemode, Viewplayers, Serverinfo'),('Guest','Calladmin, Viewplayers, Serverinfo');
+INSERT INTO `groups` VALUES ('root','Admin',1),('Admin','Admin',1),('TK4210','User',2),('User','User',2),('Pikachu','Guest',3),('MegaMan','Guest',3);
 /*!40000 ALTER TABLE `groups` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -49,7 +50,6 @@ CREATE TABLE `login` (
   `loginId` int(11) NOT NULL AUTO_INCREMENT,
   `username` varchar(32) DEFAULT NULL,
   `password` varchar(255) DEFAULT NULL,
-  `loginType` enum('Admin','User','Guest') DEFAULT NULL,
   PRIMARY KEY (`loginId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -60,7 +60,7 @@ CREATE TABLE `login` (
 
 LOCK TABLES `login` WRITE;
 /*!40000 ALTER TABLE `login` DISABLE KEYS */;
-INSERT INTO `login` VALUES (1,'root','ce4b18ea16454fdd809a','Admin'),(2,'admin','ffce719cfe7991c8d0c0','Admin'),(5,'TK4210','ffce719cfe7991c8d0c0','User'),(15,'Pikachu','36383e25b89de1bc3c1b','Guest'),(16,'MegaMan','cdaa80dc4fecc0be9ed8','Guest'),(24,'User','c3b1f8d04f800f385a09','User');
+INSERT INTO `login` VALUES (1,'root','ce4b18ea16454fdd809a'),(2,'admin','ffce719cfe7991c8d0c0'),(5,'TK4210','ffce719cfe7991c8d0c0'),(15,'Pikachu','36383e25b89de1bc3c1b'),(16,'MegaMan','cdaa80dc4fecc0be9ed8'),(24,'User','c3b1f8d04f800f385a09');
 /*!40000 ALTER TABLE `login` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -99,4 +99,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-03-20 19:25:12
+-- Dump completed on 2016-04-21 22:37:21

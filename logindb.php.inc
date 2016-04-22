@@ -184,12 +184,23 @@ class loginDB
 	//runs command
 	else
 	{
-	  $query = "insert into login (username,password,loginType) values('$newUser','$this->saltPassword$newPassword','$loginType');";
-	  $results = $this->db->query($query);
-	  if ($this->db->errno > 0)
+	  if ($this->validateAdmin($username))
 	  {
-		  echo "DB error: ".$this->db->error.PHP_EOL;
-		  return;
+	    $query = "insert into login (username,password,loginType) values('$newUser','$this->saltPassword$newPassword','$loginType');";
+	    $results = $this->db->query($query);
+	  }
+	  else
+	  {
+	    //Prevent the User group from adding a new Admin
+	    if ($loginType != "User" OR $loginType != "Guest")
+	    {
+	      echo "Error, invalid login type. Please choose either User or Guest as the login type.".PHP_EOL;
+	    }
+	    else
+	    {
+	      $query = "insert into login (username,password,loginType) values('$newUser','$this->saltPassword$newPassword','$loginType');";
+	      $results = $this->db->query($query);
+	    }
 	  }
 	}
         echo "User $newUser has been added.".PHP_EOL;

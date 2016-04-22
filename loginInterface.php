@@ -1,7 +1,6 @@
 #!/usr/bin/php
 <?php
 
-//require_once("classdb.php.inc");
 require_once("logindb.php.inc");
 
 function print_help()
