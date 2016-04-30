@@ -30,7 +30,7 @@ php loginInterface.php -c viewUsers -u User -p password
 #Guest Login
 - Search for servers
 ```php
-php loginInterface.php -c searchServers -sn <ServerName>
+php loginInterface.php -c searchServers
 ```
 - view server information
 ```php
