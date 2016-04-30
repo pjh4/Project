@@ -4,7 +4,7 @@ DROP TABLE IF EXISTS `groups`;
 CREATE TABLE `groups` (
   `groupID` varchar(32) DEFAULT NULL,
   `userID` int (50) DEFAULT NULL,
-  `permissionLevel` int(100) DEFAULT NULL,
+  `permissionLevel` int(100) DEFAULT NULL
   PRIMARY KEY (`groupID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
