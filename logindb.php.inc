@@ -270,60 +270,6 @@ class loginDB
 	}
    } 
 
-   public function modifyGroup($username, $password, $targetUser, $loginType)
-   {
-	if (!isset($username))
-	{
-	  echo "Error: No username specified".PHP_EOL;
-	  echo "Usage: loginInterface.php -u <username> -p <password> -tu <target user> -l <group> -c loginType".PHP_EOL;
-	  exit(0);
-	}
-	if (!isset($password))
-	{
-	  echo "Error: No password specified".PHP_EOL;
-	  echo "Usage: loginInterface.php -u <username> -p <password> -tu <target user> -l <group> -c loginType".PHP_EOL;
-	  exit(0);
-	}
-	if (!isset($targetUser))
-	{
-	  echo "Error: No target user specified".PHP_EOL;
-	  echo "Usage: loginInterface.php -u <username> -p <password> -tu <target user> -l <group> -c loginType".PHP_EOL;
-	  exit(0);
-	}
-	if (!isset($loginType))
-	{
-	  echo "Error: No group specified".PHP_EOL;
-	  echo "Usage: loginInterface.php -u <username> -p <password> -tu <target user> -l <group> -c loginType".PHP_EOL;
-	  exit(0);
-	}		
-	$loginType = $this->db->real_escape_string($loginType);	
-	//validate password
-   	if (!$this->validatePassword($username,$password))
-        {
-	    echo "Error: Password incorrect".PHP_EOL;
-	    $response = array(
-		    "message"=>"Password incorrect",
-		    "result"=>"false");
-	    return $response;	
-	}
-	//validate if admin
-	else if (!$this->validateAdmin($username))
-	{
-	  echo "Error: User ".$username." is not an admin!".PHP_EOL;
-	  $response = array(
-		  "message"=>"Error: User ".$username." is not an admin!",
-		  "result"=>"false");
-	  return $response;		      
-	}
-	//runs command
-	else
-	{
-	  $query = "update login set loginType = '$loginType' where username = '$targetUser';";
-	  $results = $this->db->query($query);
-	  echo "User ".$targetUser."'s login type changed to: ".$loginType.PHP_EOL;
-	}
-   }
-   
    public function viewUsers($username,$password)
    {
 	if (!isset($username))
@@ -375,30 +321,30 @@ class loginDB
 	}
    }
    
-   public function modifyPerm($username,$password,$targetGroup,$modification)
+   public function modifyPerm($username,$password,$targetUser,$targetGroup)
    {
 	if (!isset($username))
 	{
 	  echo "Error: No username specified".PHP_EOL;
-	  echo "Usage: loginInterface.php -u <username> -p <password> -tg <target group> -m <modification> -c modifyPerm".PHP_EOL;
+	  echo "Usage: loginInterface.php -u <username> -p <password> -tu <target user> -tg <target group> -c modifyPerm".PHP_EOL;
 	  exit(0);
 	}
 	if (!isset($password))
 	{
 	  echo "Error: No password specified".PHP_EOL;
-	  echo "Usage: loginInterface.php -u <username> -p <password> -tg <target group> -m <modification> -c modifyPerm".PHP_EOL;
+	  echo "Usage: loginInterface.php -u <username> -p <password> -tu <target user> -tg <target group> -c modifyPerm".PHP_EOL;
 	  exit(0);
 	}
 	if (!isset($targetGroup))
 	{
 	  echo "Error: No target group specified".PHP_EOL;
-	  echo "Usage: loginInterface.php -u <username> -p <password> -tg <target group> -m <modification> -c modifyPerm".PHP_EOL;
+	  echo "Usage: loginInterface.php -u <username> -p <password> -tu <target user> -tg <target group> -c modifyPerm".PHP_EOL;
 	  exit(0);
 	}
-	if (!isset($modification))
+	if (!isset($targetUser))
 	{
-	  echo "Error: No modifications specified".PHP_EOL;
-	  echo "Usage: loginInterface.php -u <username> -p <password> -tg <target group> -m <modification> -c modifyPerm".PHP_EOL;
+	  echo "Error: No target user specified".PHP_EOL;
+	  echo "Usage: loginInterface.php -u <username> -p <password> -tu <target user> -tg <target group> -c modifyPerm".PHP_EOL;
 	  exit(0);
 	}	
 	//validate password
@@ -422,12 +368,12 @@ class loginDB
 	//runs command
 	else
 	{
-	  $query = "update groups set permissions = '$modification' where loginType = '$targetGroup';";
+	  $query = "update groups inner join login on groups.userID = login.loginId set groups.loginType='$targetGroup' where username='$targetUser';";
 	  $results = $this->db->query($query);
-	  echo "Group ".$targetGroup."'s permissions changed to: ".$modification.PHP_EOL;
+	  echo "The user ".$targetUser."'s permissions group has been changed to: ".$targetGroup.PHP_EOL;
 	}   
    }
-   public function addServer($username,$password,$serverName,$IPaddress,$serverDesc)
+   public function addServer($username,$password,$serverName,$IPaddress,$serverDesc,$targetUser)
    {
 	if (!isset($username))
 	{
@@ -486,8 +432,8 @@ class loginDB
 	//runs command
 	else
 	{
-	  $query = "insert into server (serverID,serverName,IPaddress,serverDesc) 
-	    values(' ','$serverName','$IPaddress','$serverDesc');";
+	  $query = "INSERT INTO server (serverName,IPaddress,serverDesc,OwnerID) 
+	  values ('$serverName','$IPaddress','$serverDesc', (SELECT login.loginId FROM login where login.username = '$targetUser'))";
 	  $results = $this->db->query($query);
 	  if ($this->db->errno > 0)
 	  {
@@ -495,7 +441,7 @@ class loginDB
 		  return;
 	  }
 	}
-        echo "Server $serverName has been added.".PHP_EOL;   
+        echo "Server $serverName has been added.".PHP_EOL;  
    }   
    public function searchServers($serverName)
    {

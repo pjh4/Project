@@ -37,11 +37,11 @@ for ($i = 0; $i < $argc;$i++)
   }
   if ($argv[$i] === '-l')
   {
-    $loginType = $argv[$i + 1];
+    $permissionLevel = $argv[$i + 1];
     $i++;
     continue;
   }
-  if ($argv[$i] === '-tu')
+  if ($argv[$i] === '-tU')
   {
     $targetUser = $argv[$i + 1];
     $i++;
@@ -62,12 +62,6 @@ for ($i = 0; $i < $argc;$i++)
   if ($argv[$i] === '-np')
   {
     $newPassword = $argv[$i + 1];
-    $i++;
-    continue;
-  }  
-  if ($argv[$i] === '-m')
-  {
-    $modification = $argv[$i + 1];
     $i++;
     continue;
   }  
@@ -106,26 +100,6 @@ if (!isset($command))
    print_help();
    exit(0);
 }
-/*
-if (!isset($username))
-{
-   echo "no username specified".PHP_EOL;
-   print_help();
-   exit(0);
-}
-if (!isset($password))
-{
-   echo "no password specified".PHP_EOL;
-   print_help();
-   exit(0);
-}
-
-if (!isset($loginType))
-{
-   echo "no login type specified".PHP_EOL;
-   print_help();
-   exit(0);
-}*/
 
 //Command Functions
 switch ($command)
@@ -148,24 +122,20 @@ switch ($command)
   //Admin
   case 'addNewUser':
   $login = new loginDB("logindb.ini");
-  $login->addNewUser($username,$password,$newUser,$newPassword,$loginType,$cArgs[0]);
+  $login->addNewUser($username,$password,$newUser,$newPassword,$permissionLevel,$cArgs[0]);
   break;
   case 'deleteUser':
   $login = new loginDB("logindb.ini");
   $login->deleteUser($username,$password,$targetUser,$cArgs[0]);
   break;
-  case 'modifyGroup':
-  $login = new loginDB("logindb.ini");
-  $login->modifyGroup($username,$password,$targetUser,$loginType,$cArgs[0]);
-  break;
   case 'modifyPerm':
   $login = new loginDB("logindb.ini");
-  $login->modifyPerm($username,$password,$targetGroup,$modification,$cArgs[0]);
+  $login->modifyPerm($username,$password,$targetUser,$targetGroup,$cArgs[0]);
   break;
   //User
   case 'addServer':
   $login = new loginDB("logindb.ini");
-  $login->addServer($username,$password,$serverName,$IPaddress,$serverDesc,$cArgs[0]);
+  $login->addServer($username,$password,$serverName,$IPaddress,$serverDesc,$targetUser,$cArgs[0]);
   break;
   case 'viewUsers':
   $login = new loginDB("logindb.ini");
