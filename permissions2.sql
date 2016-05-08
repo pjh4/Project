@@ -28,7 +28,7 @@ CREATE TABLE `groups` (
   `loginType` enum('Admin','User','Guest') DEFAULT NULL,
   PRIMARY KEY (`groupID`),
   KEY `userID_idx` (`userID`),
-  CONSTRAINT `userID` FOREIGN KEY (`userID`) REFERENCES `login` (`loginId`) ON DELETE CASCADE ON UPDATE CASCADE    
+  CONSTRAINT `userID` FOREIGN KEY (`userID`) REFERENCES `login` (`loginId`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -105,4 +105,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-05-08  3:25:05
+-- Dump completed on 2016-05-08  3:34:55
