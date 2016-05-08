@@ -32,7 +32,8 @@ class loginDB
 	$row = $results->fetch_assoc();
 	if ($row['username'] === $username)
         {
-		return true;
+	  return true;
+	  echo "True";
 	}
         return false;
    }
@@ -89,10 +90,10 @@ class loginDB
    public function validateAdmin($username)
    {
 	$username = $this->db->real_escape_string($username);
-	$query = "select loginType from login where username = '$username';";
+	$query = "select loginType from groups inner join login on login.loginId = groups.userID where login.username = '$username';";
         $results = $this->db->query($query);
 	$row = $results->fetch_assoc();
-	if ($row['loginType'] === 'Admin')
+	if ($row['loginType'] === "Admin")
 	{
 		return true;
 	}
@@ -105,12 +106,11 @@ class loginDB
    public function validateUser($username)
    {
 	$username = $this->db->real_escape_string($username);
-	$query = "select loginType from login where username = '$username';";
+	$query = "select loginType from groups inner join login on login.loginId = groups.userID where login.username = '$username';";
         $results = $this->db->query($query);
 	$row = $results->fetch_assoc();
-	if ($row['loginType'] === 'User')
+	if ($row['loginType'] === "User")
 	{
-		echo "true".PHP_EOL;
 		return true;
 	}
 	else
@@ -186,8 +186,11 @@ class loginDB
 	{
 	  if ($this->validateAdmin($username))
 	  {
-	    $query = "insert into login (username,password,loginType) values('$newUser','$this->saltPassword$newPassword','$loginType');";
+	    $query = "insert into login (username,password) values('$newUser','$this->saltPassword$newPassword');";
 	    $results = $this->db->query($query);
+	    $query = "insert into groups (userID, loginType) values ((select loginId from login where username = '$newUser'),'$loginType');";
+	    $results = $this->db->query($query);
+	    echo "User $newUser has been added.".PHP_EOL;
 	  }
 	  else
 	  {
@@ -198,12 +201,14 @@ class loginDB
 	    }
 	    else
 	    {
-	      $query = "insert into login (username,password,loginType) values('$newUser','$this->saltPassword$newPassword','$loginType');";
+	      $query = "insert into login (username,password) values('$newUser','$this->saltPassword$newPassword');";
 	      $results = $this->db->query($query);
+	      $query = "insert into groups (userID, loginType) values ((select loginId from login where username = '$newUser'),'$loginType');";
+	      $results = $this->db->query($query);
+	      echo "User $newUser has been added.".PHP_EOL;
 	    }
 	  }
 	}
-        echo "User $newUser has been added.".PHP_EOL;
    }
    
    public function deleteUser($username, $password, $targetUser)
@@ -333,7 +338,7 @@ class loginDB
 	  echo "Usage: loginInterface.php -u <username> -p <password> -c viewUsers".PHP_EOL;
 	  exit(0);
 	}
-	$query = "SELECT username, loginType FROM login;";
+	$query = "SELECT username FROM login;";
 	$result = $this->db->query($query);
 	//validate password
    	if (!$this->validatePassword($username,$password))
@@ -360,7 +365,7 @@ class loginDB
 	  {
 	      while($row = $result->fetch_assoc()) 
 	      {
-		  echo " - Username: " . $row["username"]. " - Group: " . $row["loginType"].PHP_EOL;
+		  echo " - Username: " . $row["username"].PHP_EOL;
 	      }
 	  } 
 	  else 
@@ -534,4 +539,3 @@ class loginDB
 }
 
 ?>
-

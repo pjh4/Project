@@ -180,6 +180,10 @@ switch ($command)
   $login = new loginDB("logindb.ini");
   $login->viewServers($cArgs[0]);
   break;
+  case 'checkIfUserExists':
+  $login = new loginDB("logindb.ini");
+  $login->checkIfUserExists($username);
+  break;
 }
 
 ?>
