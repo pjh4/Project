@@ -445,6 +445,7 @@ class loginDB
    }   
    public function searchServers($serverName)
    {
+	/*
 	if (!isset($serverName))
 	{
 	  echo "Error: No server name specified".PHP_EOL;
@@ -464,10 +465,41 @@ class loginDB
 	else 
 	{
 	    echo "0 results".PHP_EOL;    
-	}   
+	}
+	*/
+	
+	try 
+	{
+	  $uri = "mongodb://pjh4:pjh4njit@ds011902.mlab.com:11902/permissions";
+	  $m = new MongoClient($uri);
+	  echo  "\n" . "Database connected sucessfully" . "\n".PHP_EOL;
+	  $collection = $m->permissions->server;
+	  echo "Collection connected sucessfully" . "\n".PHP_EOL;	  
+
+	  $Query = array('serverName' => $serverName);
+
+	  $cursor = $collection->find($Query);
+	  
+	  foreach ($cursor as $id) 
+	  {
+	    echo "Display results for Server Name: " . "$serverName" . "\n".PHP_EOL;
+	    echo "Server Name: " . $id["serverName"]. " - IP Address: " . $id["IPaddress"]. " - Info: " 
+	    . $id["serverDesc"]. " - Owner ID: " .$id["OwnerID"] . "\n" .PHP_EOL;	    
+	  }    
+	}
+	
+	catch (MongoConnectionException $e) 
+	{
+	  die('Error connecting to MongoDB server');
+	} catch (MongoConnectionException $e) 
+	{ 
+	  die('Error: ' . $e->getMessage());
+	}	
+	
    }
    public function viewServers()
    {
+	/*
 	$query = "SELECT * FROM server;";
 	$result = $this->db->query($query);
 	if ($result->num_rows > 0) 
@@ -480,8 +512,37 @@ class loginDB
 	else 
 	{
 	    echo "0 results";    
-	}   
+	} 
+	*/
+	try 
+	{
+	  $uri = "mongodb://pjh4:pjh4njit@ds011902.mlab.com:11902/permissions";
+	  $m = new MongoClient($uri);
+	  echo  "\n" . "Database connected sucessfully" . "\n".PHP_EOL;
+	  $collection = $m->permissions->server;
+	  echo "Collection connected sucessfully" . "\n".PHP_EOL;	  
+
+	  //$Query = array('serverName' => $serverName);
+	  $cursor = $collection->find();
+	  foreach ($cursor as $id => $value) 
+	  {
+	    //echo "$id: ";
+	    //var_dump( $value );	
+	    echo "Display results for all servers: " . "\n".PHP_EOL;
+	    echo "Server Name: " . $value["serverName"]. " - IP Address: " . $value["IPaddress"]. " - Info: " 
+	    . $value["serverDesc"]. " - Owner ID: " .$value["OwnerID"] . "\n" .PHP_EOL;		    
+	  }
+	}
+	
+	catch (MongoConnectionException $e) 
+	{
+	  die('Error connecting to MongoDB server');
+	} catch (MongoConnectionException $e) 
+	{ 
+	  die('Error: ' . $e->getMessage());
+	}	
    }
+   
 }
 
 ?>
