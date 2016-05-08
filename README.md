@@ -8,7 +8,7 @@ php loginInterface.php -u <User> -p <Password> -c addNewUser -nu <New User> -np 
 - Modify a user's permission group
 ```php
 php loginInterface.php -u <User> -p <Password> -c modifyPerm -tu <Target User> -tg <Admin, User, Guest>
-
+```
 #User Login
 - submit a server that a user runs
 ```php 
@@ -22,7 +22,6 @@ php loginInterface.php -c addNewUser -u <User> -p <Password> -nu <New User> -np 
 ```php
 php loginInterface.php -c viewUsers -u <User> -p <Password>
 ```
-
 #Guest Login
 - Search for servers
 ```php
