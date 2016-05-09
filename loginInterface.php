@@ -154,6 +154,10 @@ switch ($command)
   $login = new loginDB("logindb.ini");
   $login->checkIfUserExists($username);
   break;
+  case 'sendMongo':
+  $login = new loginDB("logindb.ini");
+  $login->sendMongo($cArgs[0]);
+  break;  
 }
 
 ?>

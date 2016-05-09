@@ -83,7 +83,7 @@ CREATE TABLE `server` (
   PRIMARY KEY (`serverID`),
   KEY `OwnerID_idx` (`OwnerID`),
   CONSTRAINT `OwnerID` FOREIGN KEY (`OwnerID`) REFERENCES `login` (`loginId`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -92,7 +92,7 @@ CREATE TABLE `server` (
 
 LOCK TABLES `server` WRITE;
 /*!40000 ALTER TABLE `server` DISABLE KEYS */;
-INSERT INTO `server` VALUES (1,'TK4210s server','173.50.12.11:10','This is my server',5),(2,'Onett','127.0.0.1','The homeliest server',2),(3,'Test','167.14.121.1','This is a test server',3),(4,'Test','18.92.9.0','This is a test server',4),(6,'Kanto','199.6.3.27','Test',9);
+INSERT INTO `server` VALUES (1,'TK4210s server','173.50.12.11:10','This is my server',5),(2,'Onett','127.0.0.1','The homeliest server',2),(3,'Test','167.14.121.1','This is a test server',3),(4,'Test','18.92.9.0','This is a test server',4),(6,'Kanto','199.6.3.27','Pocket Monsters',9),(7,'World 1-1','19.85.11.13','Mr. Video Game Himself',7),(8,'Brinstar','19.86.10.06','Bounty Hunter Extraordinaire',8),(9,'Wily Castle','198.7.12.17','Blue Metal Hero',5),(10,'Hyrule','198.6.2.21','Stop Calling Me Zelda',10);
 /*!40000 ALTER TABLE `server` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -105,4 +105,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2016-05-08 13:59:14
+-- Dump completed on 2016-05-09 10:20:26
