@@ -439,35 +439,13 @@ class loginDB
 	  {
 		  echo "DB error: ".$this->db->error.PHP_EOL;
 		  return;
-	  }
+	  }	  
 	}
-        echo "Server $serverName has been added.".PHP_EOL;  
+        echo "Server $serverName has been added.".PHP_EOL;
+        $this->sendMongo();
    }   
    public function searchServers($serverName)
    {
-	/*
-	if (!isset($serverName))
-	{
-	  echo "Error: No server name specified".PHP_EOL;
-	  echo "Usage: loginInterface.php -sn <server name> -c searchServers".PHP_EOL;
-	  exit(0);
-	}   
-	$serverName = $this->db->real_escape_string($serverName);	   
-	$query = "SELECT * FROM server where serverName = '$serverName';";
-	$result = $this->db->query($query);
-	if ($result->num_rows > 0) 
-	{
-	    while($row = $result->fetch_assoc()) 
-	    {
-		echo " - Name: " . $row["serverName"]. " - IP Address: " . $row["IPaddress"]. " - Info: " . $row["serverDesc"].PHP_EOL;
-	    }
-	} 
-	else 
-	{
-	    echo "0 results".PHP_EOL;    
-	}
-	*/
-	
 	try 
 	{
 	  $uri = "mongodb://pjh4:pjh4njit@ds011902.mlab.com:11902/permissions";
@@ -495,7 +473,6 @@ class loginDB
 	{ 
 	  die('Error: ' . $e->getMessage());
 	}	
-	
    }
    public function viewServers()
    {
@@ -508,12 +485,14 @@ class loginDB
 	  echo "Collection connected sucessfully" . "\n".PHP_EOL;	  
 	  
 	  $cursor = $collection->find();
+	  echo "Display results for all servers: " . "\n".PHP_EOL;
+	  echo "============================================================================================". "\n".PHP_EOL;
 	  foreach ($cursor as $id => $value) 
-	  {
-	    echo "Display results for all servers: " . "\n".PHP_EOL;
-	    echo "Server Name: " . $value["serverName"]. " - IP Address: " . $value["IPaddress"]. " - Info: " 
-	    . $value["serverDesc"]. " - Owner ID: " .$value["OwnerID"] . "\n" .PHP_EOL;		    
+	  {	    
+	    echo "| Server Name: " . $value["serverName"]. " | IP Address: " . $value["IPaddress"]. " | Info: " 
+	    . $value["serverDesc"]. " | Owner ID: " .$value["OwnerID"] . " | " . "\n" .PHP_EOL;		    
 	  }
+	  echo "============================================================================================". "\n".PHP_EOL;
 	}
 	
 	catch (MongoConnectionException $e) 
@@ -533,43 +512,27 @@ class loginDB
     {
       //Connect to Mongo 
       $connection = new MongoClient( "mongodb://pjh4:pjh4njit@ds011902.mlab.com:11902/permissions");
-      $mongodb = $connection->selectDB('test');
+      $mongodb = $connection->selectDB('server');
       echo "collection Login selected sucessfully" . "\n".PHP_EOL;
       //Connect to MySQL
       $con=mysqli_connect("localhost","root","toor","permissions");
       //Convert table to PHP Array
       $query = "select * from server;";
       $result = mysqli_query($con,$query);
-      $rows = array();
-      
+      $rows = array();      
       //Encode to JSON
       while($r = mysqli_fetch_array($result)) 
       {
 	$rows[] = $r;
       }
-      echo json_encode($rows).PHP_EOL;
+      //echo json_encode($rows).PHP_EOL;
       $file = file_get_contents('data.json');
       $data = json_decode($file);
       unset($file);
       file_put_contents('data.json', json_encode($rows));
       unset($rows);
-      exec("mongorestore -h ds011902.mlab.com:11902 -d permissions -c test 
-	  -u pjh4 -p pjh4njit --authenticationDatabase admin --out mongodb --jsonArray --file data.json");
-      mysqli_close($con);
-      
-      /*
-      while ($row = mysqli_fetch_array($fetch, MYSQL_ASSOC)) 
-      {
-	  $row_array['serverID'] = $row['serverID'];
-	  $row_array['serverName'] = $row['serverName'];
-	  $row_array['IPaddress'] = $row['IPaddress'];
-	  $row_array['serverDesc'] = $row['serverDesc'];
-	  $row_array['OwnerID'] = $row['OwnerID'];
-
-	  array_push($return_arr,$row_array);
-      }
-      echo json_encode($return_arr);
-      */
+      exec("mongoimport -h ds011902.mlab.com:11902 -d permissions -c server -u pjh4 -p pjh4njit --jsonArray --drop --quiet --file data.json");
+      mysqli_close($con);      
     }
     catch (MongoConnectionException $e) 
     {
@@ -580,21 +543,7 @@ class loginDB
     { 
       die('Error: ' . $e->getMessage());
     }
-  }
-
-  public function vUser($username, $password)
-  {
-    $db=$this->client->selectDB("permissions");
-    
-    $collections = $db->login;
-    $query=array('username'=> $username, 'password'=> $password);	
-    $count= $collection->findOne($query);
-    if ($count->count() > 0) 
-    {
-      echo "You are successully loggedIn";
-    }
-  }  
-
+  } 
 }
 
 ?>
