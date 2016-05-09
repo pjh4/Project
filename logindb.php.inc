@@ -450,9 +450,9 @@ class loginDB
 	{
 	  $uri = "mongodb://pjh4:pjh4njit@ds011902.mlab.com:11902/permissions";
 	  $m = new MongoClient($uri);
-	  echo  "\n" . "Database connected sucessfully" . "\n".PHP_EOL;
+	  
 	  $collection = $m->permissions->server;
-	  echo "Collection connected sucessfully" . "\n".PHP_EOL;	  
+	  
 
 	  $Query = array('serverName' => $serverName);
 
@@ -479,10 +479,8 @@ class loginDB
 	try 
 	{
 	  $uri = "mongodb://pjh4:pjh4njit@ds011902.mlab.com:11902/permissions";
-	  $m = new MongoClient($uri);
-	  echo  "\n" . "Database connected sucessfully" . "\n".PHP_EOL;
-	  $collection = $m->permissions->server;
-	  echo "Collection connected sucessfully" . "\n".PHP_EOL;	  
+	  $m = new MongoClient($uri);	  
+	  $collection = $m->permissions->server;	  
 	  
 	  $cursor = $collection->find();
 	  echo "Display results for all servers: " . "\n".PHP_EOL;
