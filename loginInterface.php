@@ -158,6 +158,10 @@ switch ($command)
   $login = new loginDB("logindb.ini");
   $login->sendMongo($cArgs[0]);
   break;  
+  case 'vUser':
+  $login = new loginDB("logindb.ini");
+  $login->vUser($username, $password, $cArgs[0]);
+  break;
 }
 
 ?>

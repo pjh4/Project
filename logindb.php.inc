@@ -499,21 +499,6 @@ class loginDB
    }
    public function viewServers()
    {
-	/*
-	$query = "SELECT * FROM server;";
-	$result = $this->db->query($query);
-	if ($result->num_rows > 0) 
-	{
-	    while($row = $result->fetch_assoc()) 
-	    {
-		echo " - Name: " . $row["serverName"]. " - IP Address: " . $row["IPaddress"]. " - Info: " . $row["serverDesc"].PHP_EOL;
-	    }
-	} 
-	else 
-	{
-	    echo "0 results";    
-	} 
-	*/
 	try 
 	{
 	  $uri = "mongodb://pjh4:pjh4njit@ds011902.mlab.com:11902/permissions";
@@ -521,13 +506,10 @@ class loginDB
 	  echo  "\n" . "Database connected sucessfully" . "\n".PHP_EOL;
 	  $collection = $m->permissions->server;
 	  echo "Collection connected sucessfully" . "\n".PHP_EOL;	  
-
-	  //$Query = array('serverName' => $serverName);
+	  
 	  $cursor = $collection->find();
 	  foreach ($cursor as $id => $value) 
 	  {
-	    //echo "$id: ";
-	    //var_dump( $value );	
 	    echo "Display results for all servers: " . "\n".PHP_EOL;
 	    echo "Server Name: " . $value["serverName"]. " - IP Address: " . $value["IPaddress"]. " - Info: " 
 	    . $value["serverDesc"]. " - Owner ID: " .$value["OwnerID"] . "\n" .PHP_EOL;		    
@@ -537,35 +519,82 @@ class loginDB
 	catch (MongoConnectionException $e) 
 	{
 	  die('Error connecting to MongoDB server');
-	} catch (MongoConnectionException $e) 
+	} 
+	
+	catch (MongoConnectionException $e) 
 	{ 
 	  die('Error: ' . $e->getMessage());
 	}	
    }
    
-  public function sendMongo()
-  {
-    $query = "SELECT * FROM server;";
-    $result = $this->db->query($query);
-    if ($result->num_rows > 0) 
+   public function sendMongo() 
+   {
+   try 
     {
-	while($row = $result->fetch_assoc()) 
-	{
-	  //$jsonO=file_get_contents($row);
-	  //var_dump($jsonO);
+      //Connect to Mongo 
+      $connection = new MongoClient( "mongodb://pjh4:pjh4njit@ds011902.mlab.com:11902/permissions");
+      $mongodb = $connection->selectDB('test');
+      echo "collection Login selected sucessfully" . "\n".PHP_EOL;
+      //Connect to MySQL
+      $con=mysqli_connect("localhost","root","toor","permissions");
+      //Convert table to PHP Array
+      $query = "select * from server;";
+      $result = mysqli_query($con,$query);
+      $rows = array();
+      
+      //Encode to JSON
+      while($r = mysqli_fetch_array($result)) 
+      {
+	$rows[] = $r;
+      }
+      echo json_encode($rows).PHP_EOL;
+      $file = file_get_contents('data.json');
+      $data = json_decode($file);
+      unset($file);
+      file_put_contents('data.json', json_encode($rows));
+      unset($rows);
+      exec("mongorestore -h ds011902.mlab.com:11902 -d permissions -c test 
+	  -u pjh4 -p pjh4njit --authenticationDatabase admin --out mongodb --jsonArray --file data.json");
+      mysqli_close($con);
+      
+      /*
+      while ($row = mysqli_fetch_array($fetch, MYSQL_ASSOC)) 
+      {
+	  $row_array['serverID'] = $row['serverID'];
+	  $row_array['serverName'] = $row['serverName'];
+	  $row_array['IPaddress'] = $row['IPaddress'];
+	  $row_array['serverDesc'] = $row['serverDesc'];
+	  $row_array['OwnerID'] = $row['OwnerID'];
 
-	  $connection = new MongoClient( "mongodb://pjh4:pjh4njit@ds011902.mlab.com:11902/permissions");
-	  $mongodb = $connection->selectDB('permissions');
-	  $collection = new MongoCollection($mongodb,'server');
-	  $serverName = 'Onett';
-	  $row=array();
-		  $row["serverName"] = $result;
-		  //$row["info"] = $jsonO;
-		  $collection->insert($row);			
-	    //echo " - Name: " . $row["serverName"]. " - IP Address: " . $row["IPaddress"]. " - Info: " . $row["serverDesc"].PHP_EOL;
-	}
-    } 		
-  }   
+	  array_push($return_arr,$row_array);
+      }
+      echo json_encode($return_arr);
+      */
+    }
+    catch (MongoConnectionException $e) 
+    {
+      die('Error connecting to MongoDB server');
+    } 
+
+    catch (MongoConnectionException $e) 
+    { 
+      die('Error: ' . $e->getMessage());
+    }
+  }
+
+  public function vUser($username, $password)
+  {
+    $db=$this->client->selectDB("permissions");
+    
+    $collections = $db->login;
+    $query=array('username'=> $username, 'password'=> $password);	
+    $count= $collection->findOne($query);
+    if ($count->count() > 0) 
+    {
+      echo "You are successully loggedIn";
+    }
+  }  
+
 }
 
 ?>
